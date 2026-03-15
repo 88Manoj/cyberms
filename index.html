@@ -183,6 +183,9 @@ textarea.form-input{height:120px;resize:vertical;}
 .form-submit{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;cursor:pointer;transition:.2s;margin-top:4px;}
 .form-submit:hover{opacity:.9;transform:translateY(-1px);}
 .form-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.field-error{font-size:11px;color:#F09595;display:block;margin-top:4px;min-height:16px;}
+.form-input.invalid{border-color:#E24B4A !important;box-shadow:0 0 0 3px rgba(226,75,74,.1);}
+.form-input.valid{border-color:#1D9E75 !important;}
 .form-success{display:none;background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.3);border-radius:var(--radius-sm);padding:16px;text-align:center;color:#5DCAA5;font-size:.9rem;margin-top:16px;}
 .contact-info{display:flex;flex-direction:column;gap:24px;}
 .info-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;display:flex;gap:16px;align-items:flex-start;}
@@ -724,30 +727,34 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
     </div>
     <div class="contact-grid">
       <div class="contact-form reveal">
-        <form id="contactForm" action="https://formspree.io/f/xgonljyq" method="POST" onsubmit="handleSubmit(event)">
+        <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="handleSubmit(event)" novalidate>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
               <label class="form-label">Full name *</label>
-              <input type="text" name="name" class="form-input" placeholder="Your full name" required autocomplete="name"/>
+              <input type="text" name="name" id="f-name" class="form-input" placeholder="Your full name" autocomplete="name" maxlength="50" oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,'')" onblur="validateField(this,'name')" required/>
+              <span class="field-error" id="err-name"></span>
             </div>
             <div class="form-group">
               <label class="form-label">Work email *</label>
-              <input type="email" name="email" class="form-input" placeholder="you@startup.com" required autocomplete="email"/>
+              <input type="email" name="email" id="f-email" class="form-input" placeholder="you@startup.com" autocomplete="email" maxlength="100" oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._\-+]/g,'')" onblur="validateField(this,'email')" required/>
+              <span class="field-error" id="err-email"></span>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
               <label class="form-label">Company name</label>
-              <input type="text" name="company" class="form-input" placeholder="Your startup" autocomplete="organization"/>
+              <input type="text" name="company" id="f-company" class="form-input" placeholder="Your startup" autocomplete="organization" maxlength="80" oninput="this.value=this.value.replace(/[<>\"'`;]/g,'')" onblur="validateField(this,'company')"/>
+              <span class="field-error" id="err-company"></span>
             </div>
             <div class="form-group">
               <label class="form-label">Phone number</label>
-              <input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" autocomplete="tel"/>
+              <input type="tel" name="phone" id="f-phone" class="form-input" placeholder="+91 XXXXX XXXXX" autocomplete="tel" maxlength="15" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'')" onblur="validateField(this,'phone')"/>
+              <span class="field-error" id="err-phone"></span>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Service needed *</label>
-            <select name="service" class="form-input" required>
+            <select name="service" id="f-service" class="form-input" onblur="validateField(this,'service')" required>
               <option value="" disabled selected>Select a service</option>
               <option>SOC-as-a-Service</option>
               <option>Digital Forensics</option>
@@ -758,15 +765,20 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
               <option>Free consultation</option>
               <option>Not sure — need advice</option>
             </select>
+            <span class="field-error" id="err-service"></span>
           </div>
           <div class="form-group">
             <label class="form-label">Message *</label>
-            <textarea name="message" class="form-input" placeholder="Describe your security needs, current setup, or any specific concerns..." required></textarea>
+            <textarea name="message" id="f-message" class="form-input" placeholder="Describe your security needs, current setup, or any specific concerns..." minlength="20" maxlength="1000" oninput="updateCharCount(this)" onblur="validateField(this,'message')" required></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+              <span class="field-error" id="err-message"></span>
+              <span id="charCount" style="font-size:11px;color:var(--gray2);margin-left:auto;">0 / 1000</span>
+            </div>
           </div>
           <input type="hidden" name="_subject" value="New CyberMS inquiry"/>
           <input type="text" name="_gotcha" style="display:none"/>
           <button type="submit" class="form-submit" id="submitBtn">Send inquiry</button>
-          <div class="form-success" id="formSuccess">Message sent! We'll get back to you within 24 hours.</div>
+          <div class="form-success" id="formSuccess">Message sent! We will get back to you within 24 hours.</div>
         </form>
       </div>
       <div class="contact-info reveal">
@@ -785,7 +797,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
           </div>
           <div>
             <div class="info-label">Call us</div>
-            <div class="info-value">+91 9209728086</div>
+            <div class="info-value">+91 98765 43210</div>
           </div>
         </div>
         <div class="info-card">
@@ -857,7 +869,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
 <div class="toast" id="toast"></div>
 
 <script>
-// PAGE NAVIGATION
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
@@ -869,12 +880,10 @@ function showPage(id) {
   return false;
 }
 
-// MOBILE MENU
 function toggleMenu() {
   document.getElementById('mobileMenu').classList.toggle('open');
 }
 
-// SCROLL REVEAL
 function initReveal() {
   setTimeout(() => {
     const els = document.querySelectorAll('.page.active .reveal');
@@ -886,22 +895,100 @@ function initReveal() {
 }
 initReveal();
 
-// BLOG FILTER
 function filterBlog(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.blog-card').forEach(card => {
-    if (cat === 'all' || card.dataset.cat === cat) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'block' : 'none';
   });
 }
 
-// CONTACT FORM
+function updateCharCount(el) {
+  const count = el.value.length;
+  const counter = document.getElementById('charCount');
+  if (counter) {
+    counter.textContent = count + ' / 1000';
+    counter.style.color = count > 900 ? '#F09595' : count > 700 ? '#FAC775' : 'var(--gray2)';
+  }
+}
+
+const rules = {
+  name: {
+    required: true, minLen: 2, maxLen: 50,
+    pattern: /^[a-zA-Z\s]+$/,
+    messages: { empty: 'Name is required.', minLen: 'Name must be at least 2 characters.', pattern: 'Name can only contain letters and spaces. No numbers or symbols.' }
+  },
+  email: {
+    required: true, maxLen: 100,
+    pattern: /^[a-zA-Z0-9._\-+]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
+    messages: { empty: 'Email is required.', pattern: 'Enter a valid email address like you@startup.com' }
+  },
+  company: {
+    required: false, maxLen: 80,
+    pattern: /^[^<>"'`;]*$/,
+    messages: { pattern: 'Company name contains invalid characters.' }
+  },
+  phone: {
+    required: false, minLen: 10, maxLen: 15,
+    pattern: /^[+]?[0-9\s\-]{10,15}$/,
+    messages: { pattern: 'Only digits, spaces, + and - allowed.', minLen: 'Phone number must be at least 10 digits.' }
+  },
+  service: {
+    required: true,
+    messages: { empty: 'Please select a service.' }
+  },
+  message: {
+    required: true, minLen: 20, maxLen: 1000,
+    pattern: /^[^<>]*$/,
+    messages: { empty: 'Message is required.', minLen: 'Message must be at least 20 characters.', pattern: 'Message contains invalid characters (< or > not allowed).' }
+  }
+};
+
+function validateField(el, fieldName) {
+  const rule = rules[fieldName];
+  if (!rule) return true;
+  const val = el.value.trim();
+  const errEl = document.getElementById('err-' + fieldName);
+  let error = '';
+  if (rule.required && val === '') {
+    error = rule.messages.empty || 'This field is required.';
+  } else if (val !== '' && rule.minLen && val.length < rule.minLen) {
+    error = rule.messages.minLen || 'Too short.';
+  } else if (val !== '' && rule.pattern && !rule.pattern.test(val)) {
+    error = rule.messages.pattern || 'Invalid input.';
+  }
+  if (errEl) errEl.textContent = error;
+  el.classList.toggle('invalid', !!error);
+  el.classList.toggle('valid', !error && val !== '');
+  return !error;
+}
+
+const submissions = [];
+function isRateLimited() {
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  while (submissions.length && submissions[0] < now - windowMs) submissions.shift();
+  if (submissions.length >= 3) return true;
+  submissions.push(now);
+  return false;
+}
+
 function handleSubmit(e) {
   e.preventDefault();
+  if (isRateLimited()) {
+    showToast('Too many submissions. Please wait 10 minutes before trying again.', 'error');
+    return;
+  }
+  const fields = ['name','email','company','phone','service','message'];
+  let allValid = true;
+  fields.forEach(f => {
+    const el = document.getElementById('f-' + f);
+    if (el && !validateField(el, f)) allValid = false;
+  });
+  if (!allValid) {
+    showToast('Please fix the errors above before submitting.', 'error');
+    return;
+  }
   const btn = document.getElementById('submitBtn');
   const form = document.getElementById('contactForm');
   const success = document.getElementById('formSuccess');
@@ -914,6 +1001,9 @@ function handleSubmit(e) {
   }).then(res => {
     if (res.ok) {
       form.reset();
+      document.querySelectorAll('.form-input').forEach(i => i.classList.remove('valid','invalid'));
+      const counter = document.getElementById('charCount');
+      if (counter) counter.textContent = '0 / 1000';
       success.style.display = 'block';
       btn.textContent = 'Message sent!';
       showToast('Message sent! We will get back to you within 24 hours.', 'success');
@@ -929,7 +1019,6 @@ function handleSubmit(e) {
   });
 }
 
-// TOAST
 function showToast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -938,7 +1027,6 @@ function showToast(msg, type) {
   setTimeout(() => t.classList.remove('show'), 4000);
 }
 
-// CLOSE MOBILE MENU ON OUTSIDE CLICK
 document.addEventListener('click', (e) => {
   const menu = document.getElementById('mobileMenu');
   if (menu.classList.contains('open') && !e.target.closest('nav') && !e.target.closest('#mobileMenu')) {
