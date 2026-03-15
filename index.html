@@ -9,7 +9,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY"/>
 <meta http-equiv="Referrer-Policy" content="no-referrer"/>
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; form-action https://formspree.io;"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; form-action https://formspree.io; connect-src https://formspree.io;"/>
 <title>CyberMS — Cybersecurity for Startups</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
 <style>
@@ -727,7 +727,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
     </div>
     <div class="contact-grid">
       <div class="contact-form reveal">
-        <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="handleSubmit(event)" novalidate>
+        <form id="contactForm" action="https://formspree.io/f/xgonljyq" method="POST" onsubmit="handleSubmit(event)" novalidate>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
               <label class="form-label">Full name *</label>
@@ -742,12 +742,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
-              <label class="form-label">Company name *</label>
-              <input type="text" name="company" id="f-company" class="form-input" placeholder="Your startup" autocomplete="organization" maxlength="80" oninput="this.value=this.value.replace(/[<>\"'`;]/g,'')" onblur="validateField(this,'company')"/>
+              <label class="form-label">Company name</label>
+              <input type="text" name="company" id="f-company" class="form-input" placeholder="Your startup name" autocomplete="organization" maxlength="80" oninput="this.value=this.value.replace(/[<>\"'`;@#$%^*=\\\/|~]/g,'')" onblur="validateField(this,'company')"/>
               <span class="field-error" id="err-company"></span>
             </div>
             <div class="form-group">
-              <label class="form-label">Phone number *</label>
+              <label class="form-label">Phone number</label>
               <input type="tel" name="phone" id="f-phone" class="form-input" placeholder="+91 XXXXX XXXXX" autocomplete="tel" maxlength="15" oninput="this.value=this.value.replace(/[^0-9+\s\-]/g,'')" onblur="validateField(this,'phone')"/>
               <span class="field-error" id="err-phone"></span>
             </div>
@@ -768,7 +768,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:50px 6% 
             <span class="field-error" id="err-service"></span>
           </div>
           <div class="form-group">
-            <label class="form-label">Message</label>
+            <label class="form-label">Message *</label>
             <textarea name="message" id="f-message" class="form-input" placeholder="Describe your security needs, current setup, or any specific concerns..." minlength="20" maxlength="1000" oninput="updateCharCount(this)" onblur="validateField(this,'message')" required></textarea>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
               <span class="field-error" id="err-message"></span>
@@ -924,12 +924,15 @@ const rules = {
     messages: { empty: 'Email is required.', pattern: 'Enter a valid email address like you@startup.com' }
   },
   company: {
-    required: true, maxLen: 80,
-    pattern: /^[^<>"'`;]*$/,
-    messages: { pattern: 'Company name contains invalid characters.' }
+    required: false, minLen: 2, maxLen: 80,
+    pattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\.\-&,()]+$/,
+    messages: {
+      minLen: 'Company name must be at least 2 characters.',
+      pattern: 'Enter a valid company name. Must contain letters, not just numbers or symbols.'
+    }
   },
   phone: {
-    required: true, minLen: 10, maxLen: 10,
+    required: false, minLen: 10, maxLen: 15,
     pattern: /^[+]?[0-9\s\-]{10,15}$/,
     messages: { pattern: 'Only digits, spaces, + and - allowed.', minLen: 'Phone number must be at least 10 digits.' }
   },
@@ -938,7 +941,7 @@ const rules = {
     messages: { empty: 'Please select a service.' }
   },
   message: {
-    required: false, minLen: 20, maxLen: 1000,
+    required: true, minLen: 20, maxLen: 1000,
     pattern: /^[^<>]*$/,
     messages: { empty: 'Message is required.', minLen: 'Message must be at least 20 characters.', pattern: 'Message contains invalid characters (< or > not allowed).' }
   }
